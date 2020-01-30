@@ -5,15 +5,14 @@ const {GitHub , context} = require('@actions/github');
 
 async function run() {
   try {
+    debug(`Starting...`);
     const token = getInput('repo-token', {required: true});
-    const configPath = getInput('configuration-path', {required: true});
 
     const prNumber = getPrNumber();
     if (!prNumber) {
       console.log('Could not get pull request number from context, exiting');
       return;
     }
-
     const client = new GitHub(token);
 
     debug(`fetching changed files for pr #${prNumber}`);
