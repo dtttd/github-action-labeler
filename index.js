@@ -40,9 +40,9 @@ async function run() {
     if (depsChanged) {
       await addLabel(client, prNumber);
     }
-  } catch (error) {
-    error(error);
-    setFailed(error.message);
+  } catch (e) {
+    error(e);
+    setFailed(e.message);
   }
 }
 
