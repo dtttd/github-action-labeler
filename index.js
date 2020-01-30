@@ -46,7 +46,7 @@ async function run() {
   }
 }
 
-function getPrNumber(): number | undefined {
+function getPrNumber() {
   const pullRequest = context.payload.pull_request;
   if (!pullRequest) {
     return undefined;
