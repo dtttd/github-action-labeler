@@ -1,12 +1,12 @@
-const { debug, error, setFailed, getInput } = require('@actions/core');
+const core = require('@actions/core'); 
 const {GitHub , context} = require('@actions/github');
 // const * as yaml from 'js-yaml';
 // const {Minimatch} from 'minimatch';
 
 async function run() {
   try {
-    debug(`Starting...`);
-    const token = getInput('repo-token', {required: true});
+    core.debug(`Starting...`);
+    const token = core.getInput('repo-token', {required: true});
 
     const prNumber = getPrNumber();
     if (!prNumber) {
@@ -15,7 +15,7 @@ async function run() {
     }
     const client = new GitHub(token);
 
-    debug(`fetching changed files for pr #${prNumber}`);
+    core.debug(`fetching changed files for pr #${prNumber}`);
     const changedFiles = await getChangedFiles(client, prNumber);
     // const labelGlobs = await getLabelGlobs(
     //   client,
@@ -24,7 +24,7 @@ async function run() {
 
     // const labels = [];
     // for (const [label, globs] of labelGlobs.entries()) {
-    //   debug(`processing ${label}`);
+    //   core.debug(`processing ${label}`);
     //   if (checkGlobs(changedFiles, globs)) {
     //     labels.push(label);
     //   }
@@ -40,8 +40,8 @@ async function run() {
       await addLabel(client, prNumber);
     }
   } catch (e) {
-    error(e);
-    setFailed(e.message);
+    code.error(e);
+    code.setFailed(e.message);
   }
 }
 
@@ -66,9 +66,9 @@ async function getChangedFiles(
 
   const changedFiles = listFilesResponse.data.map(f => f.filename);
 
-  debug('found changed files:');
+  core.debug('found changed files:');
   for (const file of changedFiles) {
-    debug('  ' + file);
+    core.debug('  ' + file);
   }
 
   return changedFiles;
@@ -123,12 +123,12 @@ async function getChangedFiles(
 
 // function checkGlobs(changedFiles: string[], globs: string[]): boolean {
 //   for (const glob of globs) {
-//     debug(` checking pattern ${glob}`);
+//     core.debug(` checking pattern ${glob}`);
 //     const matcher = new Minimatch(glob);
 //     for (const changedFile of changedFiles) {
-//       debug(` - ${changedFile}`);
+//       core.debug(` - ${changedFile}`);
 //       if (matcher.match(changedFile)) {
-//         debug(` ${changedFile} matches`);
+//         core.debug(` ${changedFile} matches`);
 //         return true;
 //       }
 //     }
