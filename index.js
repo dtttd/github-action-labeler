@@ -1,12 +1,12 @@
-import * as core from '@actions/core';
-import * as github from '@actions/github';
-import * as yaml from 'js-yaml';
-import {Minimatch} from 'minimatch';
+const { debug, error, setFailed, getInput } = require('@actions/core');
+const {GitHub , context} = require('@actions/github');
+// const * as yaml from 'js-yaml';
+// const {Minimatch} from 'minimatch';
 
 async function run() {
   try {
-    const token = core.getInput('repo-token', {required: true});
-    const configPath = core.getInput('configuration-path', {required: true});
+    const token = getInput('repo-token', {required: true});
+    const configPath = getInput('configuration-path', {required: true});
 
     const prNumber = getPrNumber();
     if (!prNumber) {
@@ -14,9 +14,9 @@ async function run() {
       return;
     }
 
-    const client = new github.GitHub(token);
+    const client = new GitHub(token);
 
-    core.debug(`fetching changed files for pr #${prNumber}`);
+    debug(`fetching changed files for pr #${prNumber}`);
     const changedFiles = await getChangedFiles(client, prNumber);
     // const labelGlobs = await getLabelGlobs(
     //   client,
@@ -25,7 +25,7 @@ async function run() {
 
     // const labels = [];
     // for (const [label, globs] of labelGlobs.entries()) {
-    //   core.debug(`processing ${label}`);
+    //   debug(`processing ${label}`);
     //   if (checkGlobs(changedFiles, globs)) {
     //     labels.push(label);
     //   }
@@ -41,13 +41,13 @@ async function run() {
       await addLabel(client, prNumber);
     }
   } catch (error) {
-    core.error(error);
-    core.setFailed(error.message);
+    error(error);
+    setFailed(error.message);
   }
 }
 
 function getPrNumber(): number | undefined {
-  const pullRequest = github.context.payload.pull_request;
+  const pullRequest = context.payload.pull_request;
   if (!pullRequest) {
     return undefined;
   }
@@ -60,23 +60,23 @@ async function getChangedFiles(
   prNumber
 ) {
   const listFilesResponse = await client.pulls.listFiles({
-    owner: github.context.repo.owner,
-    repo: github.context.repo.repo,
+    owner: context.repo.owner,
+    repo: context.repo.repo,
     pull_number: prNumber
   });
 
   const changedFiles = listFilesResponse.data.map(f => f.filename);
 
-  core.debug('found changed files:');
+  debug('found changed files:');
   for (const file of changedFiles) {
-    core.debug('  ' + file);
+    debug('  ' + file);
   }
 
   return changedFiles;
 }
 
 // async function getLabelGlobs(
-//   client: github.GitHub,
+//   client: GitHub,
 //   configurationPath: string
 // ): Promise<Map<string, string[]>> {
 //   const configurationContent: string = await fetchContent(
@@ -92,14 +92,14 @@ async function getChangedFiles(
 // }
 
 // async function fetchContent(
-//   client: github.GitHub,
+//   client: GitHub,
 //   repoPath: string
 // ): Promise<string> {
 //   const response = await client.repos.getContents({
-//     owner: github.context.repo.owner,
-//     repo: github.context.repo.repo,
+//     owner: context.repo.owner,
+//     repo: context.repo.repo,
 //     path: repoPath,
-//     ref: github.context.sha
+//     ref: context.sha
 //   });
 
 //   return Buffer.from(response.data.content, 'base64').toString();
@@ -124,12 +124,12 @@ async function getChangedFiles(
 
 // function checkGlobs(changedFiles: string[], globs: string[]): boolean {
 //   for (const glob of globs) {
-//     core.debug(` checking pattern ${glob}`);
+//     debug(` checking pattern ${glob}`);
 //     const matcher = new Minimatch(glob);
 //     for (const changedFile of changedFiles) {
-//       core.debug(` - ${changedFile}`);
+//       debug(` - ${changedFile}`);
 //       if (matcher.match(changedFile)) {
-//         core.debug(` ${changedFile} matches`);
+//         debug(` ${changedFile} matches`);
 //         return true;
 //       }
 //     }
@@ -142,8 +142,8 @@ async function addLabel(
   prNumber
 ) {
   await client.issues.addLabels({
-    owner: github.context.repo.owner,
-    repo: github.context.repo.repo,
+    owner: context.repo.owner,
+    repo: context.repo.repo,
     issue_number: prNumber,
     labels: ["deps-updated"]
   });
