@@ -1,0 +1,9 @@
+name: "Pull Request Labeler for Deps changes"
+description: "Label pull requests by yarn.lock change"
+author: "DA"
+inputs:
+  repo-token:
+    description: "The GITHUB_TOKEN secret"
+runs:
+  using: "node12"
+  main: "index.js"
