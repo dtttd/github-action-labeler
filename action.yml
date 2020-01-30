@@ -1,4 +1,4 @@
-name: "Pull Request Labeler for Deps changes"
+name: "Pull Request Labeler for deps changes"
 description: "Label pull requests by yarn.lock change"
 author: "DA"
 inputs:

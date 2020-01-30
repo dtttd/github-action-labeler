@@ -33,7 +33,7 @@ async function run() {
     // }
     let depsChanged = false;
     for (const file of changedFiles) {
-      if (file === "yarn.lock") {
+      if (file.includes("yarn.lock")) {
         depsChanged = true;
       }
     }
